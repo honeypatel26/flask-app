@@ -1,0 +1,6 @@
+**/venv
+**/instance
+.idea/
+.vscode/
+**/.venv
+**/__pycache__

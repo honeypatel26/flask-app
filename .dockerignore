@@ -1,0 +1,8 @@
+**/venv
+**/instance
+.idea/
+.vscode/
+.git/
+**/.venv
+**/__pycache__
+.gitignore
