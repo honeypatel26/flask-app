@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Account</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 p-8">
+        <h1 class="text-3xl mb-8">Account</h1>
+        <ul class="space-y-8">
+            {% for invoice in invoices %}
+            <li class="border p-6 rounded-lg bg-white">
+                <table class="min-w-full">
+                    <thead>
+                    <tr>
+                        <th class="py-2 px-4">Invoice Number</th>
+                        <th class="py-2 px-4">Customer Name</th>
+                        <th class="py-2 px-4">Invoice Date</th>
+                        <th class="py-2 px-4">Total Amount</th>
+                        <th class="py-2 px-4"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="py-2 px-4">{{ invoice.invoice_number }}</td>
+                        <td class="py-2 px-4">{{ invoice.customer_name }}</td>
+                        <td class="py-2 px-4">{{ invoice.invoice_date }}</td>
+                        <td class="py-2 px-4">${{ invoice.total_amount }}</td>
+                        <td class="py-2 px-4">
+                            <form action="/delete_invoice/{{invoice.id}}" method="post">
+                                <button class="text-red-500 hover:text-red-700">Delete Invoice</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                {% if invoice.line_items %}
+                <table class="mt-5 min-w-full bg-white border border-gray-300">
+                    <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">Line Item</th>
+                        <th class="py-2 px-4 border-b">Quantity</th>
+                        <th class="py-2 px-4 border-b">Unit Price</th>
+                        <th class="py-2 px-4 border-b">Subtotal (before tax $)</th>
+                        <th class="py-2 px-4 border-b">Tax (%)</th>
+                        <th class="py-2 px-4 border-b">Total (after tax $)</th>
+                        <th class="py-2 px-4 border-b"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for line_item in invoice.line_items %}
+                    <tr>
+                        <td class="py-2 px-4 border-b">{{ line_item.item_name }}</td>
+                        <td class="py-2 px-4 border-b">{{ line_item.quantity }}</td>
+                        <td class="py-2 px-4 border-b">${{ line_item.unit_price }}</td>
+                        <td class="py-2 px-4 border-b">${{ line_item.sub_total }}</td>
+                        <td class="py-2 px-4 border-b">{{ line_item.tax }}%</td>
+                        <td class="py-2 px-4 border-b">${{ line_item.total }}</td>
+                        <td class="py-2 px-4 border-b">
+                            <form action="/delete_line_item/{{line_item.id}}" method="post">
+                                <button class="text-red-500 hover:text-red-700">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+                <form action="/add_line_item/{{invoice.id}}" method="post" class="mt-4 flex items-center">
+                    <label for="item_name" class="block text-sm font-medium text-gray-700 mr-2">Line Item:</label>
+                    <input type="text" id="item_name" name="item_name" required class="mt-1 p-2 border rounded-md w-64 mr-2">
+
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mr-2">Quantity:</label>
+                    <input type="number" id="quantity" min="1" name="quantity" required
+                           class="mt-1 p-2 border rounded-md w-16 mr-2">
+
+                    <label for="unit_price" class="block text-sm font-medium text-gray-700 mr-2">Unit Price:</label>
+                    <input type="number" inputmode="decimal" min="0" step="any" id="unit_price" name="unit_price" required
+                           class="mt-1 p-2 border rounded-md w-32 mr-2">
+
+                    <label for="tax" class="block text-sm font-medium text-gray-700 mr-2">Tax(%):</label>
+                    <input type="number" min="0" id="tax" name="tax" required
+                           class="mt-1 p-2 border rounded-md w-32 mr-2">
+
+                    <button type="submit" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700">Add Line
+                        Item
+                    </button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        <h2 class="text-2xl mt-8">Create Invoice</h2>
+        <form action="/create_invoice" method="post" class="border p-6 rounded-lg bg-white mt-4">
+            <label for="invoice_number" class="block text-sm font-medium text-gray-700">Invoice Number:</label>
+            <input type="text" id="invoice_number" name="invoice_number" required class="mt-1 p-2 border rounded-md w-64">
+
+            <label for="customer_name" class="block text-sm font-medium text-gray-700 mt-2">Customer Name:</label>
+            <input type="text" id="customer_name" name="customer_name" required class="mt-1 p-2 border rounded-md w-64">
+
+            <label for="invoice_date" class="block text-sm font-medium text-gray-700 mt-2">Invoice Date:</label>
+            <input type="date" id="invoice_date" name="invoice_date" required class="mt-1 p-2 border rounded-md w-64">
+
+            <button type="submit" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700">Create Invoice
+            </button>
+        </form>
+    </body>
+</html>
