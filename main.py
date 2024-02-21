@@ -1,27 +1,33 @@
 from datetime import datetime
-
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+# Configure and Initialize the Extension
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///goodsman.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///goodsman.db'
+# postgresql://{user}:{password}@{host}:{port}/{db}
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/FlaskApp'
 db = SQLAlchemy(app)
 
 
 class Invoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    invoice_number = db.Column(db.String(10), unique=True, nullable=False)
+    invoice_number = db.Column(db.String(100), unique=True, nullable=False)
     invoice_date = db.Column(db.Date, nullable=True)
     customer_name = db.Column(db.String(100), nullable=False)
-    total_amount = db.Column(db.Float, nullable=False, default=0.0)
     line_items = db.relationship('InvoiceLineItem', backref='invoice', lazy=True, cascade='all, delete-orphan')
+
+    @property
+    def total_amount(self):
+        # Calculate the total amount dynamically
+        return sum(line_item.total for line_item in self.line_items)
 
 
 class InvoiceLineItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(100), nullable=False)
     quantity = db.Column(db.Integer, default=1)
-    unit_price = db.Column(db.Float, nullable=False)
+    unit_price = db.Column(db.Float(precision=2), nullable=False)
     sub_total = db.column_property(quantity * unit_price)
     tax = db.Column(db.Integer, default=0)
     total = db.column_property(sub_total + (sub_total * tax / 100))
@@ -69,32 +75,18 @@ def add_line_item(invoice_id):
                                 invoice_id=invoice_id)
     db.session.add(line_item)
     db.session.commit()
-
-    # Update the total amount of the invoice
-    update_invoice_total(invoice_id)
+    # return jsonify({'message': 'Line item added successfully'})
     return redirect(url_for('index'))
 
 
 @app.route('/delete_line_item/<int:line_item_id>', methods=['POST'])
 def delete_line_item(line_item_id):
     line_item = InvoiceLineItem.query.get_or_404(line_item_id)
-    invoice_id = line_item.invoice_id
     db.session.delete(line_item)
     db.session.commit()
-
-    # Update the total amount of the invoice
-    update_invoice_total(invoice_id)
-
+    # return jsonify({'message': 'Line item deleted successfully'})
     return redirect(url_for('index'))
 
 
-# Helper function to update the total amount of the invoice
-def update_invoice_total(invoice_id):
-    invoice = Invoice.query.get_or_404(invoice_id)
-    total_amount = sum(line_item.total for line_item in invoice.line_items)
-    invoice.total_amount = total_amount
-    db.session.commit()
-
-
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
