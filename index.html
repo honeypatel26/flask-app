@@ -25,7 +25,7 @@
                         <td class="py-2 px-4">{{ invoice.invoice_number }}</td>
                         <td class="py-2 px-4">{{ invoice.customer_name }}</td>
                         <td class="py-2 px-4">{{ invoice.invoice_date }}</td>
-                        <td class="py-2 px-4">${{ invoice.total_amount }}</td>
+                        <td class="py-2 px-4">${{ '%.2f' % invoice.total_amount }}</td>
                         <td class="py-2 px-4">
                             <form action="/delete_invoice/{{invoice.id}}" method="post">
                                 <button class="text-red-500 hover:text-red-700">Delete Invoice</button>
@@ -53,10 +53,10 @@
                     <tr>
                         <td class="py-2 px-4 border-b">{{ line_item.item_name }}</td>
                         <td class="py-2 px-4 border-b">{{ line_item.quantity }}</td>
-                        <td class="py-2 px-4 border-b">${{ line_item.unit_price }}</td>
-                        <td class="py-2 px-4 border-b">${{ line_item.sub_total }}</td>
+                        <td class="py-2 px-4 border-b">${{ '%.2f' % line_item.unit_price }}</td>
+                        <td class="py-2 px-4 border-b">${{ '%.2f' % line_item.sub_total }}</td>
                         <td class="py-2 px-4 border-b">{{ line_item.tax }}%</td>
-                        <td class="py-2 px-4 border-b">${{ line_item.total }}</td>
+                        <td class="py-2 px-4 border-b">${{ '%.2f' % line_item.total }}</td>
                         <td class="py-2 px-4 border-b">
                             <form action="/delete_line_item/{{line_item.id}}" method="post">
                                 <button class="text-red-500 hover:text-red-700">Delete</button>
